@@ -18,6 +18,10 @@ package kafka
 
 import (
 	"context"
+	"github.com/coze-dev/coze-studio/backend/pkg/parsex"
+	"github.com/coze-dev/coze-studio/backend/types/consts"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/IBM/sarama"
@@ -29,7 +33,7 @@ import (
 )
 
 type consumerImpl struct {
-	broker        string
+	broker        []string
 	topic         string
 	groupID       string
 	handler       eventbus.ConsumerHandler
@@ -41,19 +45,31 @@ func RegisterConsumer(broker string, topic, groupID string, handler eventbus.Con
 	config.Consumer.Offsets.Initial = sarama.OffsetOldest // Start consuming from the earliest message
 	config.Consumer.Group.Session.Timeout = 30 * time.Second
 
+	config.Version = parsex.KafkaVersion(consts.KafkaVersion)
+
+	if parsex.GetEnvDefaultBoolSetting(consts.KafkaNetSASLEnable) {
+		_ = parsex.KafkaAuth(
+			strings.ToUpper(os.Getenv(consts.KafkaNetSASLMechanism)),
+			os.Getenv(consts.KafkaNetSASLUser),
+			os.Getenv(consts.KafkaNetSASLPassword),
+			nil, nil, config)
+	}
+
 	o := &eventbus.ConsumerOption{}
 	for _, opt := range opts {
 		opt(o)
 	}
 	// TODO: orderly
 
-	consumerGroup, err := sarama.NewConsumerGroup([]string{broker}, groupID, config)
+	endpoints, err := parsex.ParseClusterEndpoints(broker)
+
+	consumerGroup, err := sarama.NewConsumerGroup(endpoints, groupID, config)
 	if err != nil {
 		return err
 	}
 
 	c := &consumerImpl{
-		broker:        broker,
+		broker:        endpoints,
 		topic:         topic,
 		groupID:       groupID,
 		handler:       handler,

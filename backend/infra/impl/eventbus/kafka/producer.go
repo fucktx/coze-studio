@@ -18,6 +18,10 @@ package kafka
 
 import (
 	"context"
+	"github.com/coze-dev/coze-studio/backend/pkg/parsex"
+	"github.com/coze-dev/coze-studio/backend/types/consts"
+	"os"
+	"strings"
 
 	"github.com/IBM/sarama"
 
@@ -37,6 +41,16 @@ func NewProducer(broker, topic string) (eventbus.Producer, error) {
 	config.Producer.Return.Successes = true
 	config.Producer.Return.Errors = true
 	config.Producer.RequiredAcks = sarama.WaitForAll
+
+	config.Version = parsex.KafkaVersion(consts.KafkaVersion)
+
+	if parsex.GetEnvDefaultBoolSetting(consts.KafkaNetSASLEnable) {
+		_ = parsex.KafkaAuth(
+			strings.ToUpper(os.Getenv(consts.KafkaNetSASLMechanism)),
+			os.Getenv(consts.KafkaNetSASLUser),
+			os.Getenv(consts.KafkaNetSASLPassword),
+			nil, nil, config)
+	}
 
 	producer, err := sarama.NewSyncProducer([]string{broker}, config)
 	if err != nil {

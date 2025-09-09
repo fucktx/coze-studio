@@ -66,6 +66,12 @@ const (
 	RMQConsumeGroupApp       = "cg_search_app"
 	RMQConsumeGroupKnowledge = "cg_knowledge"
 
+	KafkaNetSASLEnable    = "KAFKA_NET_SASL_ENABLE"
+	KafkaNetSASLMechanism = "KAFKA_NET_SASL_MECHANISM"
+	KafkaNetSASLUser      = "KAFKA_NET_SASL_USER"
+	KafkaNetSASLPassword  = "KAFKA_NET_SASL_PASSWORD"
+	KafkaVersion          = "KAFKA_VERSION"
+
 	CozeConnectorID   = int64(10000010)
 	WebSDKConnectorID = int64(999)
 	APIConnectorID    = int64(1024)

@@ -64,3 +64,12 @@ func GetEnvDefaultIntSetting(envVar, defaultValue string) string {
 	}
 	return value
 }
+
+// GetEnvDefaultBoolSetting 获取环境变量的值，如果不存在或无效则返回默认值
+func GetEnvDefaultBoolSetting(envVar string) bool {
+	value := strings.TrimSpace(os.Getenv(envVar))
+	if value == "true" {
+		return true
+	}
+	return false
+}
