@@ -47,6 +47,7 @@ func RegisterConsumer(broker string, topic, groupID string, handler eventbus.Con
 
 	config.Version = parsex.KafkaVersion(consts.KafkaVersion)
 
+	//先仅支持kafka配置用户名密码形式的访问，对于其他形式暂时不支持
 	if parsex.GetEnvDefaultBoolSetting(consts.KafkaNetSASLEnable) {
 		_ = parsex.KafkaAuth(
 			strings.ToUpper(os.Getenv(consts.KafkaNetSASLMechanism)),
